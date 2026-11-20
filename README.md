@@ -8,10 +8,10 @@ framework [`tve_kit`](https://github.com/mameAmy466/framework) et l'API TVE v3.
 | Écran | Fichier |
 |---|---|
 | Démarrage (logo, slogan, arcs, site www.ouest.tv, Facebook, YouTube) | `lib/ouest/splash.dart` |
-| Accueil (carte chaîne + bouton EN DIRECT, rangées de vidéos) | `lib/ouest/home_screen.dart` |
+| Accueil (carte chaîne + EN DIRECT clignotant, carrousel animé, rangées de vidéos) | `lib/ouest/home_screen.dart` |
 | Direct (lecteur, carte chaîne, réseaux, rangées repliables) | `lib/ouest/live_screen.dart` |
 | Replay TV (lecteur, titre, vidéos similaires) | `lib/ouest/replay_screen.dart` |
-| Menu (Accueil / Direct / Replay, Paramètres, « Follow us on ») | `lib/ouest/shell.dart` |
+| Menu latéral animé (la page glisse et rétrécit ; Accueil / Direct / Replay, Paramètres, réseaux, site) | `lib/ouest/shell.dart` |
 
 Le reste : `brand.dart` (couleurs, slogan, **liens des réseaux sociaux**), `content.dart` (source des
 rangées), `player.dart` (lecteur avec contrôles sous l'image), `widgets.dart`.
