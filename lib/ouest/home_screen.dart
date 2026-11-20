@@ -6,7 +6,8 @@ import 'content.dart';
 import 'shell.dart';
 import 'widgets.dart';
 
-/// Maquette « accueil » : carte de la chaîne + rangées de vidéos.
+/// Maquette « accueil » : carte de la chaîne (EN DIRECT clignotant), carrousel
+/// animé « Dernières vidéos », puis une rangée par émission / playlist.
 class OuestHomeScreen extends StatelessWidget {
   const OuestHomeScreen({super.key});
 
@@ -29,9 +30,15 @@ class OuestHomeScreen extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: OuestChannelCard(onLive: () => shell.go(OuestPage.live)),
+                child: OuestChannelCard(
+                  subtitle: 'Suivez votre chaîne ${tve.appName} en direct.',
+                  onLive: () => shell.go(OuestPage.live),
+                ),
               ),
-              for (final r in rails) OuestRailSection(rail: r, onOpen: (v, _) => shell.openVideo(v)),
+              for (final (i, r) in rails.indexed)
+                i == 0
+                    ? OuestFeaturedRail(rail: r, onOpen: (v, _) => shell.openVideo(v))
+                    : OuestRailSection(rail: r, onOpen: (v, _) => shell.openVideo(v)),
             ],
           ),
         ),
