@@ -61,13 +61,7 @@ class _FollowUs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const networks = [
-      OuestSocial.facebook,
-      OuestSocial.instagram,
-      OuestSocial.twitter,
-      OuestSocial.whatsapp,
-      OuestSocial.youtube,
-    ];
+    const networks = [OuestSocial.facebook, OuestSocial.youtube, OuestSocial.website];
     return Padding(
       padding: const EdgeInsets.only(bottom: 34),
       child: Center(

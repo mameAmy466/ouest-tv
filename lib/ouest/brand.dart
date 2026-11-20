@@ -35,9 +35,10 @@ abstract final class OuestLinks {
   static const String? whatsapp = null;
   static const String? youtube = null;
   static const String? linkedin = null;
+  static const String? website = null;
 }
 
-enum OuestSocial { facebook, instagram, twitter, whatsapp, youtube, linkedin }
+enum OuestSocial { facebook, instagram, twitter, whatsapp, youtube, linkedin, website }
 
 extension OuestSocialX on OuestSocial {
   FaIconData get icon => switch (this) {
@@ -47,6 +48,7 @@ extension OuestSocialX on OuestSocial {
     OuestSocial.whatsapp => FontAwesomeIcons.whatsapp,
     OuestSocial.youtube => FontAwesomeIcons.youtube,
     OuestSocial.linkedin => FontAwesomeIcons.linkedinIn,
+    OuestSocial.website => FontAwesomeIcons.globe,
   };
 
   String get label => switch (this) {
@@ -56,6 +58,7 @@ extension OuestSocialX on OuestSocial {
     OuestSocial.whatsapp => 'WhatsApp',
     OuestSocial.youtube => 'YouTube',
     OuestSocial.linkedin => 'LinkedIn',
+    OuestSocial.website => 'Site web',
   };
 
   /// Lien fixe de l'app, sinon celui de l'API (si [social] est fourni).
@@ -66,6 +69,7 @@ extension OuestSocialX on OuestSocial {
     OuestSocial.whatsapp => OuestLinks.whatsapp,
     OuestSocial.youtube => OuestLinks.youtube ?? social?.youtube,
     OuestSocial.linkedin => OuestLinks.linkedin,
+    OuestSocial.website => OuestLinks.website,
   };
 }
 
