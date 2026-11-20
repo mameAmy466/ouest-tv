@@ -33,9 +33,21 @@ playlist YouTube synchronisée. Les rangées vides sont masquées.
 
 ## Lancer
 
+Flutter ≥ 3.32 (Dart ≥ 3.8). Testé avec Flutter 3.35.7.
+
 ```bash
 flutter pub get
-flutter run
+flutter run                                   # Android / iOS
+flutter run --dart-define=TVE_GROUP=leraltv   # avec un groupe qui existe déjà dans l'API
 ```
+
+**Chrome (web)** : l'API renvoie l'en-tête CORS en double (`Access-Control-Allow-Origin: *, *`),
+le navigateur bloque donc les requêtes (à corriger côté serveur). En attendant, pour tester :
+
+```bash
+flutter run -d chrome --dart-define=TVE_GROUP=leraltv --web-browser-flag "--disable-web-security"
+```
+
+Sur le web, le direct HLS ne se lit pas (Chrome n'a pas de lecteur HLS natif) ; sur mobile, OK.
 
 Police : Montserrat, embarquée dans `assets/fonts` (licence SIL OFL).
