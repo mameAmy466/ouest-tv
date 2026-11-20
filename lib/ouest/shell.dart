@@ -39,8 +39,9 @@ class OuestShellState extends State<OuestShell> {
   });
 
   Future<void> openMenu() async {
-    final page = await Navigator.of(context)
-        .push<OuestPage>(MaterialPageRoute(builder: (_) => const OuestMenuScreen()));
+    final page = await Navigator.of(
+      context,
+    ).push<OuestPage>(MaterialPageRoute(builder: (_) => const OuestMenuScreen()));
     if (page != null) go(page);
   }
 

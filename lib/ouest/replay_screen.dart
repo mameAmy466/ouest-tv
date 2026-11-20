@@ -57,13 +57,16 @@ class OuestReplayScreen extends StatelessWidget {
     );
   }
 
+  /// Le lecteur dépend du type de la vidéo :
+  /// - vidéo YouTube synchronisée, ou vidéo de l'API de source `youtube` → lecteur YouTube ;
+  /// - vidéo VOD de l'API → lecteur natif (URL de lecture signée de l'API).
   Widget _player(TveScope tve, OuestVideo v) {
     final ext = v.external;
     if (ext != null) return OuestPlayer(key: ValueKey(v.id), youtubeId: ext.externalId);
     final vod = v.vod!;
-    if (vod.isYoutube && vod.externalId != null) {
-      return OuestPlayer(key: ValueKey(v.id), youtubeId: vod.externalId);
-    }
+    final ytId = vod.isYoutube ? vod.externalId : null;
+    if (ytId != null) return OuestPlayer(key: ValueKey(v.id), youtubeId: ytId);
+    // VOD (ou YouTube sans id connu : l'API renvoie alors un descripteur `youtube`).
     return OuestPlayer(key: ValueKey(v.id), load: () => tve.api.getVideoPlayback(vod.slug));
   }
 }

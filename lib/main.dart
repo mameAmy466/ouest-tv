@@ -13,6 +13,8 @@ const group = String.fromEnvironment('TVE_GROUP', defaultValue: 'ouesttv');
 const config = TveConfig(
   group: group,
   appName: 'Ouest TV',
+  // Site déclaré à YouTube pour le lecteur intégré (sinon erreurs 152/153).
+  youtubeOrigin: OuestLinks.website,
   // defaultChannel: 'ouest-tv',
   // playStoreUrl: 'https://play.google.com/store/apps/details?id=com.acangroup.ouest_tv',
   // appStoreUrl: 'https://apps.apple.com/app/id000000000',
