@@ -413,10 +413,8 @@ class _Stagger extends StatelessWidget {
     );
     return AnimatedBuilder(
       animation: anim,
-      builder: (context, child) => Opacity(
-        opacity: anim.value,
-        child: Transform.translate(offset: Offset(-36 * (1 - anim.value), 0), child: child),
-      ),
+      // Glissement seul (pas de widget Opacity : évite les erreurs Impeller sur iOS).
+      builder: (context, child) => Transform.translate(offset: Offset(-56 * (1 - anim.value), 0), child: child),
       child: child,
     );
   }

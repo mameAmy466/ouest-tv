@@ -103,14 +103,16 @@ class _OuestLiveDotState extends State<OuestLiveDot> with SingleTickerProviderSt
     animation: _c,
     builder: (context, _) {
       final t = Curves.easeInOut.transform(_c.value);
-      return Opacity(
-        opacity: 1 - .8 * t,
-        child: Transform.scale(
-          scale: 1 - .25 * t,
-          child: Container(
-            width: widget.size,
-            height: widget.size,
-            decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle),
+      // Couleur semi-transparente plutôt qu'un widget Opacity (évite les
+      // erreurs de validation d'Impeller sur iOS avec une animation continue).
+      return Transform.scale(
+        scale: 1 - .25 * t,
+        child: Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            color: widget.color.withValues(alpha: widget.color.a * (1 - .8 * t)),
+            shape: BoxShape.circle,
           ),
         ),
       );
@@ -311,6 +313,7 @@ class OuestVideoCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(_pad),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Stack(
@@ -462,22 +465,26 @@ class _OuestRailListState extends State<OuestRailList> {
         final items = snap.data;
         if (items == null) {
           return const SizedBox(
-            height: OuestVideoCard.height + 16,
+            height: OuestVideoCard.height + 28,
             child: Center(child: CircularProgressIndicator()),
           );
         }
         if (items.isEmpty) return const SizedBox.shrink();
         return SizedBox(
-          height: OuestVideoCard.height + 16,
+          // Marge de sécurité : la hauteur réelle du texte varie selon la plateforme.
+          height: OuestVideoCard.height + 28,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.fromLTRB(16, 2, 16, 14),
             itemCount: items.length,
             separatorBuilder: (_, _) => const SizedBox(width: 14),
-            itemBuilder: (context, i) => OuestVideoCard(
-              video: items[i],
-              playing: items[i] == widget.playing,
-              onTap: () => widget.onOpen(items[i], items),
+            itemBuilder: (context, i) => Align(
+              alignment: Alignment.topCenter,
+              child: OuestVideoCard(
+                video: items[i],
+                playing: items[i] == widget.playing,
+                onTap: () => widget.onOpen(items[i], items),
+              ),
             ),
           ),
         );
@@ -577,15 +584,13 @@ class _OuestCarouselState extends State<OuestCarousel> {
                         final d = delta.abs().clamp(0.0, 1.0);
                         return Transform.scale(
                           scale: 1 - d * .1,
-                          child: Opacity(
-                            opacity: 1 - d * .3,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(7, 4, 7, 20),
-                              child: _FeaturedCard(
-                                video: v,
-                                parallax: delta.clamp(-1.0, 1.0),
-                                onTap: () => widget.onOpen(v, items),
-                              ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(7, 4, 7, 20),
+                            child: _FeaturedCard(
+                              video: v,
+                              parallax: delta.clamp(-1.0, 1.0),
+                              dim: d * .35,
+                              onTap: () => widget.onOpen(v, items),
                             ),
                           ),
                         );
@@ -610,8 +615,11 @@ class _OuestCarouselState extends State<OuestCarousel> {
 class _FeaturedCard extends StatelessWidget {
   final OuestVideo video;
   final double parallax;
+
+  /// 0 = carte centrale, jusqu'à ~0,35 = voisine estompée.
+  final double dim;
   final VoidCallback onTap;
-  const _FeaturedCard({required this.video, required this.parallax, required this.onTap});
+  const _FeaturedCard({required this.video, required this.parallax, required this.onTap, this.dim = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -688,6 +696,11 @@ class _FeaturedCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Voile couleur fond pour estomper les cartes voisines.
+                if (dim > 0)
+                  IgnorePointer(
+                    child: ColoredBox(color: OuestBrand.background.withValues(alpha: dim)),
+                  ),
               ],
             ),
           ),
