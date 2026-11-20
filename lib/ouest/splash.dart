@@ -56,54 +56,52 @@ class OuestSplash extends StatelessWidget {
   }
 }
 
+/// Bas du splash : site web à gauche, Facebook et YouTube à droite.
 class _FollowUs extends StatelessWidget {
   const _FollowUs();
 
   @override
   Widget build(BuildContext context) {
-    const networks = [OuestSocial.facebook, OuestSocial.youtube, OuestSocial.website];
+    final site = OuestSocial.website.url();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 34),
-      child: Center(
-        child: Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.topCenter,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 7),
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final n in networks)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: n.url() == null ? null : () => openLink(n.url()),
-                        child: Container(
-                          width: 22,
-                          height: 22,
-                          alignment: Alignment.center,
-                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                          child: FaIcon(n.icon, size: 12, color: OuestBrand.primary, semanticLabel: n.label),
-                        ),
-                      ),
+      padding: const EdgeInsets.fromLTRB(36, 0, 36, 34),
+      child: Row(
+        children: [
+          if (site != null)
+            InkWell(
+              onTap: () => openLink(site),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.ads_click_rounded, color: Colors.white, size: 22),
+                    const SizedBox(width: 12),
+                    Text(
+                      site.replaceFirst(RegExp(r'^https?://'), '').replaceFirst(RegExp(r'/$'), ''),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
-            Container(
-              color: OuestBrand.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: const Text('Suivez-nous', style: TextStyle(color: Colors.white, fontSize: 12, height: 1.1)),
+          const Spacer(),
+          for (final n in const [OuestSocial.facebook, OuestSocial.youtube])
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: n.url() == null ? null : () => openLink(n.url()),
+                child: Container(
+                  width: 26,
+                  height: 26,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                  child: FaIcon(n.icon, size: 14, color: OuestBrand.primary, semanticLabel: n.label),
+                ),
+              ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

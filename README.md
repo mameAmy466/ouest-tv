@@ -7,7 +7,7 @@ framework [`tve_kit`](https://github.com/mameAmy466/framework) et l'API TVE v3.
 
 | Écran | Fichier |
 |---|---|
-| Démarrage (logo, slogan, arcs, « Suivez-nous » : Facebook, YouTube, site web) | `lib/ouest/splash.dart` |
+| Démarrage (logo, slogan, arcs, site www.ouest.tv, Facebook, YouTube) | `lib/ouest/splash.dart` |
 | Accueil (carte chaîne + bouton EN DIRECT, rangées de vidéos) | `lib/ouest/home_screen.dart` |
 | Direct (lecteur, carte chaîne, réseaux, rangées repliables) | `lib/ouest/live_screen.dart` |
 | Replay TV (lecteur, titre, vidéos similaires) | `lib/ouest/replay_screen.dart` |
@@ -24,7 +24,7 @@ playlist YouTube synchronisée. Les rangées vides sont masquées.
 - **Code du groupe TVE** : `ouesttv` dans `lib/main.dart` — ce groupe n'existe pas encore dans l'API.
   Pour tester avec un autre groupe : `flutter run --dart-define=TVE_GROUP=leraltv`.
 - **Liens sociaux et site web** (Facebook, Instagram, X, WhatsApp, YouTube, LinkedIn, site) : `OuestLinks`
-  dans `lib/ouest/brand.dart`. Le splash affiche Facebook, YouTube et le site web, et n'utilise que ces liens (l'API n'est pas encore chargée) ; les
+  dans `lib/ouest/brand.dart`. Le splash affiche le site (www.ouest.tv), Facebook et YouTube, et n'utilise que ces liens (l'API n'est pas encore chargée) ; les
   autres écrans prennent aussi `social.*` de l'API.
 - **Dépendance `tve_kit`** : pointe sur la branche `claude/blissful-faraday-iun5xh` (ajout de
   `splashBuilder` / `homeBuilder`). À passer sur `main` ou un tag une fois fusionnée.

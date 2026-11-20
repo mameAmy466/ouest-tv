@@ -35,7 +35,7 @@ abstract final class OuestLinks {
   static const String? whatsapp = null;
   static const String? youtube = null;
   static const String? linkedin = null;
-  static const String? website = null;
+  static const website = 'https://www.ouest.tv';
 }
 
 enum OuestSocial { facebook, instagram, twitter, whatsapp, youtube, linkedin, website }
