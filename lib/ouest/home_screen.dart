@@ -19,7 +19,7 @@ class OuestHomeScreen extends StatelessWidget {
       backgroundColor: OuestBrand.background,
       appBar: OuestAppBar(title: 'Accueil', uppercase: true, onMenu: shell.openMenu),
       body: TveFuture<List<OuestRail>>(
-        load: () => OuestContent(tve).all(),
+        load: () => OuestContent.of(tve).all(),
         builder: (context, rails, reload) => RefreshIndicator(
           onRefresh: () async {
             tve.api.clearCache();

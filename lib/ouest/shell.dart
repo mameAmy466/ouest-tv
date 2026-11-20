@@ -110,6 +110,38 @@ class OuestShellState extends State<OuestShell> with SingleTickerProviderStateMi
     ),
   );
 
+  /// Bouton retour sur l'accueil : demander avant de quitter l'app.
+  Future<void> _confirmQuit() async {
+    final name = TveScope.of(context).appName;
+    final quit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: Image.asset(OuestBrand.logo, height: 48),
+        title: Text('Quitter $name ?', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 19)),
+        content: const Text("Voulez-vous vraiment quitter l'application ?", textAlign: TextAlign.center),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text(
+              'Annuler',
+              style: TextStyle(color: OuestBrand.text, fontWeight: FontWeight.w600),
+            ),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: OuestBrand.primary),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Quitter'),
+          ),
+        ],
+      ),
+    );
+    if (quit ?? false) await SystemNavigator.pop();
+  }
+
   void _openAbout() => _push('À propos', const TveAboutScreen());
 
   void _openPrivacy() {
@@ -138,10 +170,16 @@ class OuestShellState extends State<OuestShell> with SingleTickerProviderStateMi
         final t = Curves.easeOutCubic.transform(_menu.value);
         final open = _menu.value > 0;
         return PopScope(
-          canPop: !open && _page == OuestPage.home,
+          canPop: false,
           onPopInvokedWithResult: (didPop, _) {
             if (didPop) return;
-            open ? closeMenu() : go(OuestPage.home);
+            if (open) {
+              closeMenu();
+            } else if (_page != OuestPage.home) {
+              go(OuestPage.home);
+            } else {
+              _confirmQuit();
+            }
           },
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: t > .5 ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,

@@ -28,8 +28,23 @@ playlist YouTube synchronisée. Les rangées vides sont masquées.
   autres écrans prennent aussi `social.*` de l'API.
 - **Dépendance `tve_kit`** : pointe sur la branche `claude/blissful-faraday-iun5xh` (ajout de
   `splashBuilder` / `homeBuilder`). À passer sur `main` ou un tag une fois fusionnée.
-- Icône de l'app : `assets/images/app_icon.png` (logo d'origine, 512×512), à générer pour
-  Android/iOS (ex. `flutter_launcher_icons`).
+- Logo HD : les icônes et l'écran natif sont générés à partir du logo fourni en 512×512.
+  Avec un logo haute définition (1024 px ou plus), remplacez les fichiers de `assets/branding/`
+  puis relancez les deux commandes ci-dessous.
+
+## Icône et écran de démarrage natif
+
+L'icône de l'app et l'écran affiché avant le chargement de Flutter (fond blanc + logo) sont
+générés depuis `assets/branding/` (config dans `pubspec.yaml`) :
+
+```bash
+dart run flutter_launcher_icons
+dart run flutter_native_splash:create
+```
+
+Ensuite, l'écran de démarrage Flutter reste affiché au moins 5 s, le temps de charger le groupe
+et de précharger l'accueil (`preload` dans `lib/main.dart`). Sur l'accueil, le bouton retour
+demande confirmation avant de quitter l'app.
 
 ## Lancer
 

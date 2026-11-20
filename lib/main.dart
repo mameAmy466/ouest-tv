@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tve_kit/tve_kit.dart';
 
 import 'ouest/brand.dart';
+import 'ouest/content.dart';
 import 'ouest/shell.dart';
 import 'ouest/splash.dart';
 
@@ -28,7 +29,9 @@ final design = TveDesign(
   themeMode: ThemeMode.light,
   fontFamily: 'Montserrat', // embarquée (assets/fonts, licence OFL)
   logoAsset: OuestBrand.logo,
-  splashMinDuration: const Duration(milliseconds: 1800),
+  // Splash affiché au moins 5 s, le temps de charger le groupe et de précharger l'accueil.
+  splashMinDuration: const Duration(seconds: 5),
+  preload: (api, group) => OuestContent.preload(api, group, config),
   splashBuilder: (context, error, onRetry) => OuestSplash(error: error, onRetry: onRetry),
   homeBuilder: (_) => const OuestShell(),
 );

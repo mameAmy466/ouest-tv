@@ -15,7 +15,7 @@ class OuestLiveScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final tve = TveScope.of(context);
     final shell = OuestShell.of(context);
-    final content = OuestContent(tve);
+    final content = OuestContent.of(tve);
     return Scaffold(
       backgroundColor: OuestBrand.background,
       appBar: OuestAppBar(title: '${tve.appName} en direct', onMenu: shell.openMenu),

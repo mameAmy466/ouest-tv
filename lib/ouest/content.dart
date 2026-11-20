@@ -49,55 +49,78 @@ class OuestRail {
 /// - vidéos VOD : « Dernières vidéos » puis une rangée par émission ;
 /// - sinon vidéos YouTube : « Dernières vidéos » puis une rangée par playlist.
 class OuestContent {
-  final TveScope tve;
-  OuestContent(this.tve);
+  final TveClient api;
+  final TveGroup group;
+  final TveConfig config;
+  OuestContent(this.api, this.group, this.config);
+
+  factory OuestContent.of(TveScope tve) => OuestContent(tve.api, tve.group, tve.config);
 
   static const railSize = 10;
   static const maxShowRails = 12;
 
-  TveClient get _api => tve.api;
-  List<String>? get _ch => tve.channelFilter;
-  bool get _vod => tve.group.has('videos');
-  bool get _yt => tve.group.has('external-videos');
+  /// Nombre de rangées de l'accueil préchargées pendant le splash.
+  static const preloadedRails = 4;
 
-  OuestRail get latest => OuestRail(
-    id: 'latest',
-    title: 'DERNIÈRES VIDÉOS',
-    load: () async {
-      if (_vod) {
-        final p = await _api.listVideos(channel: _ch, limit: railSize);
-        return p.items.map(OuestVideo.vod).toList();
-      }
-      if (_yt) {
-        final p = await _api.listExternalVideos(channel: _ch, limit: railSize);
-        return p.items.map(OuestVideo.external).toList();
-      }
-      return const [];
-    },
-  );
+  // Résultats du préchargement, servis une seule fois (les rechargements
+  // suivants, ex. tirer pour rafraîchir, repartent de l'API).
+  static List<OuestRail>? _preloadedHome;
+  static final Map<String, List<OuestVideo>> _preloadedItems = {};
+
+  /// Précharge l'accueil (liste des rangées + premières vidéos) pendant le splash.
+  static Future<void> preload(TveClient api, TveGroup group, TveConfig config) async {
+    final rails = await OuestContent(api, group, config).all();
+    await Future.wait(
+      rails.take(preloadedRails).map((r) async {
+        try {
+          _preloadedItems[r.id] = await r.load();
+        } catch (_) {}
+      }),
+    );
+    _preloadedHome = rails;
+  }
+
+  OuestRail _rail(String id, String title, Future<List<OuestVideo>> Function() load) =>
+      OuestRail(id: id, title: title, load: () async => _preloadedItems.remove(id) ?? await load());
+
+  TveClient get _api => api;
+  List<String>? get _ch => config.channels.isEmpty ? null : config.channels;
+  bool get _vod => group.has('videos');
+  bool get _yt => group.has('external-videos');
+
+  OuestRail get latest => _rail('latest', 'DERNIÈRES VIDÉOS', () async {
+    if (_vod) {
+      final p = await _api.listVideos(channel: _ch, limit: railSize);
+      return p.items.map(OuestVideo.vod).toList();
+    }
+    if (_yt) {
+      final p = await _api.listExternalVideos(channel: _ch, limit: railSize);
+      return p.items.map(OuestVideo.external).toList();
+    }
+    return const [];
+  });
 
   /// Rangées thématiques (émissions ou playlists).
   Future<List<OuestRail>> topics() async {
-    if (_vod && tve.group.has('shows')) {
+    if (_vod && group.has('shows')) {
       final p = await _api.listShows(channel: _ch, limit: maxShowRails);
       return [
         for (final s in p.items)
-          OuestRail(
-            id: 'show:${s.slug}',
-            title: s.title.toUpperCase(),
-            load: () async =>
-                (await _api.listVideos(show: [s.slug], limit: railSize)).items.map(OuestVideo.vod).toList(),
+          _rail(
+            'show:${s.slug}',
+            s.title.toUpperCase(),
+            () async => (await _api.listVideos(show: [s.slug], limit: railSize)).items.map(OuestVideo.vod).toList(),
           ),
       ];
     }
-    if (_yt && tve.group.has('external-playlists')) {
+    if (_yt && group.has('external-playlists')) {
       final p = await _api.listExternalPlaylists(channel: _ch, limit: maxShowRails);
       return [
         for (final pl in p.items.where((e) => e.itemCount != 0))
-          OuestRail(
-            id: 'playlist:${pl.id}',
-            title: pl.title.toUpperCase(),
-            load: () async => (await _api.listExternalVideos(
+          _rail(
+            'playlist:${pl.id}',
+            pl.title.toUpperCase(),
+            () async => (await _api.listExternalVideos(
               playlist: pl.id,
               limit: railSize,
             )).items.map(OuestVideo.external).toList(),
@@ -107,8 +130,12 @@ class OuestContent {
     return const [];
   }
 
-  /// Toutes les rangées de l'accueil.
-  Future<List<OuestRail>> all() async => [latest, ...await topics().catchError((_) => <OuestRail>[])];
+  /// Toutes les rangées de l'accueil (celles du préchargement, la première fois).
+  Future<List<OuestRail>> all() async {
+    final pre = _preloadedHome;
+    _preloadedHome = null;
+    return pre ?? [latest, ...await topics().catchError((_) => <OuestRail>[])];
+  }
 
   /// « Vidéos similaires » à [v].
   OuestRail similar(OuestVideo v) => OuestRail(
@@ -135,7 +162,7 @@ class OuestContent {
     final p = await _api.listChannels(kind: const ['tv', 'webtv'], limit: 100);
     final items = _ch == null ? p.items : p.items.where((c) => _ch!.contains(c.slug)).toList();
     if (items.isEmpty) return null;
-    final wanted = tve.config.defaultChannel;
+    final wanted = config.defaultChannel;
     return items.firstWhere((c) => c.slug == wanted, orElse: () => items.first);
   }
 }

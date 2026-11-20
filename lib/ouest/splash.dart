@@ -43,6 +43,18 @@ class OuestSplash extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 1.4, color: OuestBrand.text),
                     ),
+                    if (error == null) ...[
+                      const SizedBox(height: 36),
+                      const SizedBox(
+                        width: 120,
+                        child: LinearProgressIndicator(
+                          minHeight: 3,
+                          color: OuestBrand.primary,
+                          backgroundColor: Color(0xFFF2CDCD),
+                          borderRadius: BorderRadius.all(Radius.circular(2)),
+                        ),
+                      ),
+                    ],
                     if (error != null) ...[const SizedBox(height: 24), TveErrorView(error: error!, onRetry: onRetry)],
                   ],
                 ),
