@@ -302,11 +302,7 @@ class OuestVideoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: OuestPanel.shadow,
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -347,7 +343,7 @@ class OuestVideoCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       height: 1.4,
                       color: OuestBrand.text,
                       letterSpacing: -.1,
@@ -413,7 +409,7 @@ class OuestRailTitle extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: OuestBrand.text),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: OuestBrand.text),
             ),
           ),
           ?trailing,

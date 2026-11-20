@@ -144,15 +144,21 @@ class OuestShellState extends State<OuestShell> with SingleTickerProviderStateMi
 
   void _openAbout() => _push('À propos', const TveAboutScreen());
 
-  void _openPrivacy() {
-    final html = TveScope.of(context).group.privacyPolicyHtml;
-    _push(
-      'Confidentialité',
-      html == null
-          ? const TveEmptyView(icon: Icons.privacy_tip_outlined)
-          : SingleChildScrollView(padding: const EdgeInsets.all(20), child: TveHtml(html)),
-    );
-  }
+  void _openPrivacy() => _push(
+    'Confidentialité',
+    ListView(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+      children: [
+        Center(child: Image.asset(OuestBrand.logo, height: 70)),
+        const SizedBox(height: 24),
+        for (final p in OuestBrand.privacyText)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: Text(p, style: const TextStyle(fontSize: 15, height: 1.6, color: OuestBrand.text)),
+          ),
+      ],
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
