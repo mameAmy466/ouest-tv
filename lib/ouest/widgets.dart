@@ -141,7 +141,7 @@ class OuestChannelCard extends StatelessWidget {
           width: 94,
           height: 70,
           padding: const EdgeInsets.all(8),
-          color: const Color(0xFFE6E6E6),
+          decoration: BoxDecoration(color: const Color(0xFFF1F1F1), borderRadius: BorderRadius.circular(12)),
           child: Image.asset(OuestBrand.logo, fit: BoxFit.contain),
         ),
         const SizedBox(width: 10),
@@ -178,65 +178,61 @@ class OuestChannelCard extends StatelessWidget {
       ],
     );
     if (!boxed) return row;
-    return Container(color: Colors.white, padding: const EdgeInsets.all(14), child: row);
+    return OuestPanel(margin: EdgeInsets.zero, child: row);
   }
 }
 
-/// Bloc « Suivez nous sur » + icônes + bouton de partage.
+/// Carte « Suivez-nous » : réseaux sociaux + bouton de partage.
 class OuestFollowBar extends StatelessWidget {
   final String shareText;
   const OuestFollowBar({super.key, required this.shareText});
 
   @override
   Widget build(BuildContext context) {
-    final social = TveScope.of(context).group.social;
-    const networks = [OuestSocial.facebook, OuestSocial.twitter, OuestSocial.instagram, OuestSocial.linkedin];
+    final tve = TveScope.of(context);
+    final social = tve.group.social;
+    const networks = [
+      OuestSocial.facebook,
+      OuestSocial.youtube,
+      OuestSocial.twitter,
+      OuestSocial.instagram,
+      OuestSocial.linkedin,
+    ];
     final links = [
       for (final n in networks)
         if (n.url(social) != null) n,
     ];
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: const BoxDecoration(
-        border: Border.symmetric(horizontal: BorderSide(color: Color(0xFFE2E2E2))),
-      ),
+    return OuestPanel(
       child: Row(
         children: [
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Suivez nous sur', style: TextStyle(fontSize: 12, color: OuestBrand.text)),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    for (final n in links)
-                      IconButton(
-                        tooltip: n.label,
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                        iconSize: 13,
-                        icon: FaIcon(n.icon, color: OuestBrand.text),
-                        onPressed: () => openLink(n.url(social)),
-                      ),
-                  ],
+                Text(
+                  'Suivez-nous',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: OuestBrand.text),
                 ),
+                SizedBox(height: 2),
+                Text('et partagez autour de vous', style: TextStyle(fontSize: 12, color: Color(0xFF8A8A8A))),
               ],
             ),
           ),
-          Material(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-              side: const BorderSide(color: Color(0xFFE2E2E2)),
+          for (final n in links)
+            Padding(
+              padding: const EdgeInsets.only(left: 6),
+              child: _RoundButton(
+                tooltip: n.label,
+                onTap: () => openLink(n.url(social)),
+                child: FaIcon(n.icon, size: 14, color: OuestBrand.primary),
+              ),
             ),
-            child: IconButton(
-              tooltip: 'Partager',
-              icon: const Icon(Icons.share_outlined, color: OuestBrand.text),
-              onPressed: () => SharePlus.instance.share(ShareParams(text: TveScope.of(context).shareText(shareText))),
-            ),
+          const SizedBox(width: 10),
+          _RoundButton(
+            tooltip: 'Partager',
+            filled: true,
+            onTap: () => SharePlus.instance.share(ShareParams(text: tve.shareText(shareText))),
+            child: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
           ),
         ],
       ),
@@ -244,65 +240,125 @@ class OuestFollowBar extends StatelessWidget {
   }
 }
 
-/// Vignette vidéo des rangées horizontales.
+class _RoundButton extends StatelessWidget {
+  final String tooltip;
+  final bool filled;
+  final VoidCallback onTap;
+  final Widget child;
+  const _RoundButton({required this.tooltip, required this.onTap, required this.child, this.filled = false});
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: Material(
+      color: filled ? OuestBrand.primary : const Color(0xFFF6ECEA),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox(width: 38, height: 38, child: Center(child: child)),
+      ),
+    ),
+  );
+}
+
+/// Carte blanche arrondie, sans bordure, avec une ombre très légère.
+class OuestPanel extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets padding;
+  final EdgeInsets margin;
+  const OuestPanel({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(14),
+    this.margin = const EdgeInsets.symmetric(horizontal: 16),
+  });
+
+  static const shadow = [BoxShadow(color: Color(0x0F000000), blurRadius: 16, offset: Offset(0, 6))];
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: margin,
+    padding: padding,
+    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: shadow),
+    child: child,
+  );
+}
+
+/// Vignette vidéo des rangées horizontales : carte blanche, sans bordure, avec marge intérieure.
 class OuestVideoCard extends StatelessWidget {
   static const width = 216.0;
+  static const _pad = 10.0;
+
+  /// Hauteur totale d'une carte (image 16:9 + titre 3 lignes + date + marges).
+  static const height = _pad + (width - 2 * _pad) * 9 / 16 + 8 + 14 * 1.4 * 3 + 2 + 10 + 16 + _pad;
+
   final OuestVideo video;
   final VoidCallback onTap;
   final bool playing;
-
-  /// Grande vignette du carrousel « Dernières vidéos » (largeur imposée par le parent).
-  final bool large;
-  const OuestVideoCard({super.key, required this.video, required this.onTap, this.playing = false, this.large = false});
-
-  /// Hauteur du texte sous l'image (titre 3 lignes + date).
-  static double textHeight({bool large = false}) => large ? 150 : 100;
+  const OuestVideoCard({super.key, required this.video, required this.onTap, this.playing = false});
 
   @override
   Widget build(BuildContext context) {
-    final titleSize = large ? 20.0 : 14.0;
-    return SizedBox(
-      width: large ? null : width,
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: OuestPanel.shadow,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(_pad),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TveImage(video.thumbnail, radius: large ? 10 : 6),
-                if (playing)
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: OuestBrand.live, width: 2),
+                Stack(
+                  children: [
+                    TveImage(video.thumbnail, radius: 9),
+                    if (playing)
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(9)),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.equalizer_rounded, color: Colors.white, size: 30),
+                              Text(
+                                'EN LECTURE',
+                                style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      child: const Icon(Icons.equalizer_rounded, color: Colors.white, size: 36),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 14 * 1.4 * 3 + 2,
+                  child: Text(
+                    video.title.toUpperCase(),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      height: 1.4,
+                      color: OuestBrand.text,
+                      letterSpacing: -.1,
                     ),
                   ),
+                ),
+                const SizedBox(height: 10),
+                OuestDateLine(date: video.publishedAt),
               ],
             ),
-            SizedBox(height: large ? 14 : 8),
-            SizedBox(
-              height: titleSize * 1.4 * 3 + 2,
-              child: Text(
-                video.title.toUpperCase(),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: titleSize,
-                  fontWeight: FontWeight.w700,
-                  height: 1.4,
-                  color: OuestBrand.text,
-                  letterSpacing: -.1,
-                ),
-              ),
-            ),
-            SizedBox(height: large ? 18 : 10),
-            OuestDateLine(date: video.publishedAt, large: large),
-          ],
+          ),
         ),
       ),
     );
@@ -312,21 +368,19 @@ class OuestVideoCard extends StatelessWidget {
 /// « Aujourd'hui • 16:30 ».
 class OuestDateLine extends StatelessWidget {
   final DateTime? date;
-  final bool large;
-  const OuestDateLine({super.key, required this.date, this.large = false});
+  const OuestDateLine({super.key, required this.date});
 
   @override
   Widget build(BuildContext context) {
-    if (date == null) return SizedBox(height: large ? 26 : 16);
-    final style = TextStyle(fontSize: large ? 19 : 12, color: OuestBrand.text);
-    final dot = large ? 11.0 : 6.0;
+    if (date == null) return const SizedBox(height: 16);
+    const style = TextStyle(fontSize: 12, color: Color(0xFF6B6B6B));
     return Row(
       children: [
         Text(ouestDay(date), style: style),
         Container(
-          width: dot,
-          height: dot,
-          margin: EdgeInsets.symmetric(horizontal: large ? 18 : 8),
+          width: 6,
+          height: 6,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
           decoration: const BoxDecoration(color: OuestBrand.accent, shape: BoxShape.circle),
         ),
         Text(ouestTime(date), style: style),
@@ -335,7 +389,7 @@ class OuestDateLine extends StatelessWidget {
   }
 }
 
-/// Titre de rangée : « DERNIÈRES VIDÉOS ».
+/// Titre de rangée : petite barre brune + « DERNIÈRES VIDÉOS ».
 class OuestRailTitle extends StatelessWidget {
   final String title;
   final Widget? trailing;
@@ -343,17 +397,23 @@ class OuestRailTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(20, 0, 12, 0),
+    padding: const EdgeInsets.fromLTRB(16, 0, 12, 0),
     child: SizedBox(
-      height: 44,
+      height: 46,
       child: Row(
         children: [
+          Container(
+            width: 4,
+            height: 18,
+            decoration: BoxDecoration(color: OuestBrand.primary, borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: OuestBrand.text),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: OuestBrand.text),
             ),
           ),
           ?trailing,
@@ -405,16 +465,19 @@ class _OuestRailListState extends State<OuestRailList> {
         }
         final items = snap.data;
         if (items == null) {
-          return const SizedBox(height: 240, child: Center(child: CircularProgressIndicator()));
+          return const SizedBox(
+            height: OuestVideoCard.height + 16,
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
         if (items.isEmpty) return const SizedBox.shrink();
         return SizedBox(
-          height: 240,
+          height: OuestVideoCard.height + 16,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.fromLTRB(16, 2, 16, 14),
             itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 20),
+            separatorBuilder: (_, _) => const SizedBox(width: 14),
             itemBuilder: (context, i) => OuestVideoCard(
               video: items[i],
               playing: items[i] == widget.playing,
@@ -812,14 +875,25 @@ class _OuestCollapsibleRailState extends State<OuestCollapsibleRail> {
           onTap: () => setState(() => _open = !_open),
           child: OuestRailTitle(
             widget.rail.title,
-            trailing: Icon(
-              _open ? Icons.keyboard_arrow_down_rounded : Icons.keyboard_arrow_up_rounded,
-              color: OuestBrand.text,
+            trailing: AnimatedRotation(
+              turns: _open ? 0 : -.5,
+              duration: const Duration(milliseconds: 250),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: OuestPanel.shadow,
+                ),
+                child: const Icon(Icons.keyboard_arrow_down_rounded, color: OuestBrand.text, size: 20),
+              ),
             ),
           ),
         ),
         AnimatedSize(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
           alignment: Alignment.topCenter,
           child: _open
               ? Padding(
