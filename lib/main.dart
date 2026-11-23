@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tve_kit/tve_kit.dart';
 
 import 'ouest/brand.dart';
@@ -36,4 +37,10 @@ final design = TveDesign(
   homeBuilder: (_) => const OuestShell(),
 );
 
-void main() => runTveApp(config: config, design: design);
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // App en portrait ; seuls les lecteurs passent en paysage (plein écran).
+  TveFullscreen.appOrientations = const [DeviceOrientation.portraitUp];
+  SystemChrome.setPreferredOrientations(TveFullscreen.appOrientations);
+  runTveApp(config: config, design: design);
+}

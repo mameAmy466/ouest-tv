@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:tve_kit/tve_kit.dart';
 import 'package:video_player/video_player.dart';
 
@@ -113,19 +112,15 @@ class _OuestPlayerState extends State<OuestPlayer> {
     if (mounted) setState(() {});
   }
 
+  bool _inFullscreen = false;
+
+  /// Plein écran : remettre le téléphone à la verticale le quitte (TveFullscreenPage).
   Future<void> _fullscreen() async {
     final c = _ctrl;
-    if (c == null) return;
-    await SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    if (!mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => _Fullscreen(controller: c, isLive: widget.isLive),
-      ),
-    );
-    await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    if (c == null || _inFullscreen) return;
+    _inFullscreen = true;
+    await TveFullscreenPage.push(context, _Fullscreen(controller: c, isLive: widget.isLive));
+    _inFullscreen = false;
   }
 
   @override
@@ -135,68 +130,74 @@ class _OuestPlayerState extends State<OuestPlayer> {
     }
     final c = _ctrl;
     final ready = c != null && c.value.isInitialized;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: ColoredBox(
-            color: Colors.black,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (ready)
-                  GestureDetector(
-                    onTap: () => c.value.isPlaying ? c.pause() : c.play(),
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: c.value.aspectRatio > 0 ? c.value.aspectRatio : 16 / 9,
-                        child: VideoPlayer(c),
+    // Téléphone tourné à l'horizontale pendant la lecture → plein écran.
+    return TveRotationWatcher(
+      onLandscape: () {
+        if (ready && c.value.isPlaying) _fullscreen();
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: ColoredBox(
+              color: Colors.black,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (ready)
+                    GestureDetector(
+                      onTap: () => c.value.isPlaying ? c.pause() : c.play(),
+                      child: Center(
+                        child: AspectRatio(
+                          aspectRatio: c.value.aspectRatio > 0 ? c.value.aspectRatio : 16 / 9,
+                          child: VideoPlayer(c),
+                        ),
                       ),
                     ),
-                  ),
-                if (_loading || (ready && c.value.isBuffering))
-                  const Center(child: CircularProgressIndicator(color: Colors.white)),
-                if (_error != null)
-                  Theme(
-                    data: ThemeData.dark(useMaterial3: true),
-                    child: TveErrorView(
-                      error: _error!,
-                      onRetry: () {
-                        _retries = 0;
-                        _init();
-                      },
+                  if (_loading || (ready && c.value.isBuffering))
+                    const Center(child: CircularProgressIndicator(color: Colors.white)),
+                  if (_error != null)
+                    Theme(
+                      data: ThemeData.dark(useMaterial3: true),
+                      child: TveErrorView(
+                        error: _error!,
+                        onRetry: () {
+                          _retries = 0;
+                          _init();
+                        },
+                      ),
                     ),
-                  ),
-                if (widget.isLive) const Positioned(left: 24, top: 14, child: OuestLiveBadge()),
-              ],
+                  if (widget.isLive) const Positioned(left: 24, top: 14, child: OuestLiveBadge()),
+                ],
+              ),
             ),
           ),
-        ),
-        SizedBox(
-          height: 4,
-          child: ready && !widget.isLive
-              ? VideoProgressIndicator(
-                  c,
-                  allowScrubbing: true,
-                  padding: EdgeInsets.zero,
-                  colors: const VideoProgressColors(
-                    playedColor: OuestBrand.live,
-                    bufferedColor: Color(0x66F20D0D),
-                    backgroundColor: Color(0xFF222222),
-                  ),
-                )
-              : const LinearProgressIndicator(value: 1, color: OuestBrand.live, backgroundColor: Color(0xFF222222)),
-        ),
-        _Controls(
-          playing: ready && c.value.isPlaying,
-          muted: ready && c.value.volume == 0,
-          time: widget.isLive ? ouestTime(DateTime.now()) : _fmt(ready ? c.value.position : Duration.zero),
-          onPlay: ready ? () => c.value.isPlaying ? c.pause() : c.play() : null,
-          onMute: ready ? () => c.setVolume(c.value.volume == 0 ? 1 : 0) : null,
-          onFullscreen: ready ? _fullscreen : null,
-        ),
-      ],
+          SizedBox(
+            height: 4,
+            child: ready && !widget.isLive
+                ? VideoProgressIndicator(
+                    c,
+                    allowScrubbing: true,
+                    padding: EdgeInsets.zero,
+                    colors: const VideoProgressColors(
+                      playedColor: OuestBrand.live,
+                      bufferedColor: Color(0x66F20D0D),
+                      backgroundColor: Color(0xFF222222),
+                    ),
+                  )
+                : const LinearProgressIndicator(value: 1, color: OuestBrand.live, backgroundColor: Color(0xFF222222)),
+          ),
+          _Controls(
+            playing: ready && c.value.isPlaying,
+            muted: ready && c.value.volume == 0,
+            time: widget.isLive ? ouestTime(DateTime.now()) : _fmt(ready ? c.value.position : Duration.zero),
+            onPlay: ready ? () => c.value.isPlaying ? c.pause() : c.play() : null,
+            onMute: ready ? () => c.setVolume(c.value.volume == 0 ? 1 : 0) : null,
+            onFullscreen: ready ? _fullscreen : null,
+          ),
+        ],
+      ),
     );
   }
 
