@@ -52,7 +52,7 @@ class OuestReplayScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(child: OuestDateLine(date: v.publishedAt)),
-                    OuestShareButton(text: [v.title, v.shareUrl].whereType<String>().join('\n')),
+                    OuestShareButton(text: v.title),
                   ],
                 ),
               ),

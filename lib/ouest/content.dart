@@ -29,8 +29,6 @@ class OuestVideo {
       vod = null,
       external = v;
 
-  /// Lien public, pour le partage.
-  String? get shareUrl => external?.watchUrl;
 
   @override
   bool operator ==(Object other) => other is OuestVideo && other.id == id;

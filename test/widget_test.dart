@@ -18,4 +18,15 @@ void main() {
     expect(ouestDay(DateTime(2021, 10, 2), now: now), '02/10/2021');
     expect(ouestTime(DateTime(2026, 11, 20, 16, 30)), '16:30');
   });
+
+  test('partage : texte avec les liens des stores', () {
+    final text = config.shareTemplate
+        .replaceAll('{title}', 'Ma vidéo')
+        .replaceAll('{app}', 'Ouest TV')
+        .replaceAll('{playstore}', config.playStoreUrl!)
+        .replaceAll('{appstore}', config.appStoreUrl!);
+    expect(text, startsWith('Ma vidéo'));
+    expect(text, contains('play.google.com/store/apps/details?id=com.acangroup.ouest_tv'));
+    expect(text, contains('apps.apple.com'));
+  });
 }

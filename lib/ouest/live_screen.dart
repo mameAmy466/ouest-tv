@@ -145,7 +145,7 @@ class _LiveInfoCardState extends State<_LiveInfoCard> {
                 ),
               ),
               const SizedBox(width: 8),
-              OuestShareButton(text: '${tve.appName} en direct'),
+              OuestShareButton(text: '🔴 ${tve.appName} en direct'),
             ],
           ),
           const SizedBox(height: 12),

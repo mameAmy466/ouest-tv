@@ -25,8 +25,17 @@ const config = TveConfig(
   appName: 'Ouest TV',
   // Site déclaré à YouTube pour le lecteur intégré (sinon erreurs 152/153).
   youtubeOrigin: OuestLinks.website,
-  // playStoreUrl: 'https://play.google.com/store/apps/details?id=com.acangroup.ouest_tv',
-  // appStoreUrl: 'https://apps.apple.com/app/id000000000',
+  // Partage : on partage l'app (liens des stores).
+  // TODO(ouest-tv) : liens FICTIFS pour les tests, à remplacer par les vrais
+  // après publication (l'id Android correspond à applicationId).
+  playStoreUrl: 'https://play.google.com/store/apps/details?id=com.acangroup.ouest_tv',
+  appStoreUrl: 'https://apps.apple.com/app/ouest-tv/id0000000000',
+  shareTemplate:
+      '{title}\n\n'
+      "📺 Regardez Ouest TV, la chaîne d'information de l'Afrique de l'Ouest, en direct et en replay "
+      "sur l'application {app} :\n\n"
+      'Android : {playstore}\n'
+      'iPhone : {appstore}',
 );
 
 /// ─── DESIGN ───────────────────────────────────────────────────────────────
