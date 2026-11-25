@@ -21,17 +21,6 @@ abstract final class OuestBrand {
   static const text = Color(0xFF1B1B1B);
 
   static const logo = 'assets/images/logo.png';
-
-  /// Texte de la page « Confidentialité » du menu (un paragraphe par entrée).
-  static const privacyText = [
-    'Des reportages, des débats, des magazines et des documentaires, OUEST-TV, '
-        "c’est la chaîne régionale ouest africaine d’information en continu.",
-    'Toutes les thématiques sont prises en compte, pour réduire le déficit de '
-        "diffusion de la construction de l’Afrique.",
-    'Des reportages et des dossiers, sur les chantiers du continent, vous font '
-        "vivre au rythme d’une autre Afrique.",
-    'Sur OUEST-TV, c’est le temps du développement.',
-  ];
 }
 
 /// Liens des réseaux sociaux.

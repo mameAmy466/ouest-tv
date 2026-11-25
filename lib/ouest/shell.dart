@@ -144,21 +144,43 @@ class OuestShellState extends State<OuestShell> with SingleTickerProviderStateMi
 
   void _openAbout() => _push('À propos', const TveAboutScreen());
 
-  void _openPrivacy() => _push(
-    'Confidentialité',
-    ListView(
-      padding: EdgeInsets.fromLTRB(20, 24, 20, 32 + MediaQuery.viewPaddingOf(context).bottom),
-      children: [
-        Center(child: Image.asset(OuestBrand.logo, height: 70)),
-        const SizedBox(height: 24),
-        for (final p in OuestBrand.privacyText)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: Text(p, style: const TextStyle(fontSize: 15, height: 1.6, color: OuestBrand.text)),
-          ),
-      ],
-    ),
-  );
+  /// Politique de confidentialité : texte de l'API (configuration d'app de la
+  /// chaîne, `privacy_policy`), aux couleurs de l'app.
+  void _openPrivacy() {
+    final html = TveScope.of(context).group.privacyPolicyHtml;
+    _push(
+      'Confidentialité',
+      html == null || html.trim().isEmpty
+          ? const TveEmptyView(icon: Icons.privacy_tip_outlined)
+          : ListView(
+              padding: EdgeInsets.fromLTRB(20, 24, 20, 32 + MediaQuery.viewPaddingOf(context).bottom),
+              children: [
+                Center(child: Image.asset(OuestBrand.logo, height: 64)),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(18, 8, 18, 18),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                  child: TveHtml(_brandHtml(html)),
+                ),
+              ],
+            ),
+    );
+  }
+
+  /// Remplace les couleurs codées en dur dans le HTML (vert du modèle) par la
+  /// couleur de l'app.
+  static String _brandHtml(String html) {
+    var h = html.replaceAll(RegExp(r'color:\s*(rgb\([^)]*\)|#[0-9a-fA-F]{3,8})\s*;?'), 'color: #6E2316;');
+    // Titres à taille raisonnable sur mobile, en brun.
+    const sizes = {'h1': 21, 'h2': 17, 'h3': 15, 'h4': 15};
+    sizes.forEach((tag, px) {
+      h = h.replaceAllMapped(
+        RegExp('<$tag(\\s[^>]*)?>', caseSensitive: false),
+        (m) => '<$tag style="font-size:${px}px;line-height:1.35;color:#6E2316;margin:16px 0 6px">',
+      );
+    });
+    return h;
+  }
 
   @override
   Widget build(BuildContext context) {
