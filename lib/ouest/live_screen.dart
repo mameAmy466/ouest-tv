@@ -47,9 +47,10 @@ class OuestLiveScreen extends StatelessWidget {
               _LiveInfoCard(channel: channel),
               const SizedBox(height: 12),
               const OuestFollowBar(),
-              const SizedBox(height: 18),
-              OuestCollapsibleRail(rail: content.latest, initiallyExpanded: true, onOpen: (v, _) => shell.openVideo(v)),
-              for (final r in topics) OuestCollapsibleRail(rail: r, onOpen: (v, _) => shell.openVideo(v)),
+              const SizedBox(height: 6),
+              // Rangées toujours ouvertes (pas de repli sur la page direct).
+              OuestRailSection(rail: content.latest, onOpen: (v, _) => shell.openVideo(v)),
+              for (final r in topics) OuestRailSection(rail: r, onOpen: (v, _) => shell.openVideo(v)),
             ],
           );
         },
