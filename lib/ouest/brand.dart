@@ -21,6 +21,9 @@ abstract final class OuestBrand {
   static const text = Color(0xFF1B1B1B);
 
   static const logo = 'assets/images/logo.png';
+
+  /// Image jointe au partage (logo + slogan, 1200×630).
+  static const shareImage = 'assets/images/share_card.png';
 }
 
 /// Liens des réseaux sociaux.

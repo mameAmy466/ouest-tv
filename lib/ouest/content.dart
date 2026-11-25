@@ -29,7 +29,6 @@ class OuestVideo {
       vod = null,
       external = v;
 
-
   @override
   bool operator ==(Object other) => other is OuestVideo && other.id == id;
 

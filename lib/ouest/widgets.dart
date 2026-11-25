@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tve_kit/tve_kit.dart';
@@ -247,7 +248,7 @@ class OuestShareButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () => SharePlus.instance.share(ShareParams(text: tve.shareText(text))),
+        onTap: () => ouestShare(context, tve.shareText(text), appName: tve.appName),
         child: const Padding(
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
@@ -265,6 +266,31 @@ class OuestShareButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Partage l'app : image aux couleurs d'Ouest TV (logo + slogan), texte avec
+/// les liens des stores, et le nom de l'app comme titre / objet.
+Future<void> ouestShare(BuildContext context, String text, {required String appName}) async {
+  final box = context.findRenderObject() as RenderBox?;
+  // Position du bouton : requise par la feuille de partage sur iPad.
+  final origin = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+  List<XFile>? files;
+  try {
+    final data = await rootBundle.load(OuestBrand.shareImage);
+    files = [XFile.fromData(data.buffer.asUint8List(), mimeType: 'image/png', name: 'ouest-tv.png')];
+  } catch (_) {
+    files = null; // image indisponible : partage du texte seul
+  }
+  await SharePlus.instance.share(
+    ShareParams(
+      text: text,
+      title: appName,
+      subject: appName,
+      files: files,
+      fileNameOverrides: files == null ? null : const ['ouest-tv.png'],
+      sharePositionOrigin: origin,
+    ),
+  );
 }
 
 class _RoundButton extends StatelessWidget {
