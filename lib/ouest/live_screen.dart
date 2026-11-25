@@ -30,7 +30,7 @@ class OuestLiveScreen extends StatelessWidget {
         builder: (context, data, _) {
           final (channel, topics) = data;
           return ListView(
-            padding: const EdgeInsets.only(bottom: 28),
+            padding: ouestBottomPadding(context, 28),
             children: [
               if (channel == null)
                 const AspectRatio(

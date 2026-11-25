@@ -147,7 +147,7 @@ class OuestShellState extends State<OuestShell> with SingleTickerProviderStateMi
   void _openPrivacy() => _push(
     'Confidentialité',
     ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+      padding: EdgeInsets.fromLTRB(20, 24, 20, 32 + MediaQuery.viewPaddingOf(context).bottom),
       children: [
         Center(child: Image.asset(OuestBrand.logo, height: 70)),
         const SizedBox(height: 24),

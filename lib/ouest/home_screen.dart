@@ -26,7 +26,7 @@ class OuestHomeScreen extends StatelessWidget {
             await reload();
           },
           child: ListView(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: ouestBottomPadding(context),
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),

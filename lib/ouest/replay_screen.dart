@@ -31,7 +31,7 @@ class OuestReplayScreen extends StatelessWidget {
           if (v == null) return const TveEmptyView(icon: Icons.video_library_outlined);
           void open(OuestVideo next, List<OuestVideo> _) => shell.openVideo(next);
           return ListView(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: ouestBottomPadding(context),
             children: [
               _player(tve, v),
               Padding(

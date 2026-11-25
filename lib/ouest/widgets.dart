@@ -8,6 +8,12 @@ import 'package:tve_kit/tve_kit.dart';
 import 'brand.dart';
 import 'content.dart';
 
+/// Marge du bas d'une liste plein écran : [extra] + la barre système
+/// (navigation Android, indicateur d'accueil iPhone), pour que la fin du
+/// contenu ne passe pas dessous.
+EdgeInsets ouestBottomPadding(BuildContext context, [double extra = 24]) =>
+    EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom + extra);
+
 /// Barre du haut des maquettes : icône menu + titre en capitales.
 class OuestAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
