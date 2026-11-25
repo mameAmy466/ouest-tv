@@ -5,7 +5,8 @@ import 'package:ouest_tv/ouest/brand.dart';
 
 void main() {
   test('config', () {
-    expect(config.group, 'ouesttv');
+    expect(config.group, 'acasgroup');
+    expect(config.appChannel, 'ouest-tv');
     expect(design.splashBuilder, isNotNull);
     expect(design.homeBuilder, isNotNull);
   });

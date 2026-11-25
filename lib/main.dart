@@ -8,16 +8,23 @@ import 'ouest/shell.dart';
 import 'ouest/splash.dart';
 
 /// ─── VARIABLES ────────────────────────────────────────────────────────────
-/// Code du groupe dans l'API TVE (https://tveapi.acan.group/v3/groups/<code>).
-/// Surchargeable au build : `flutter run --dart-define=TVE_GROUP=leraltv`.
-const group = String.fromEnvironment('TVE_GROUP', defaultValue: 'ouesttv');
+/// Ouest TV est une chaîne aCAS : toutes les chaînes aCAS sont dans le groupe
+/// `acasgroup`, seule la chaîne change (`ouest-tv`). Sa configuration d'app
+/// (nom, logo, réseaux, à propos…) vient de
+/// https://tveapi.acan.group/v3/groups/acasgroup/channels/ouest-tv?include=app
+///
+/// Test avec un autre groupe : `flutter run --dart-define=TVE_GROUP=leraltv`
+/// (la chaîne n'est alors plus imposée, sauf `--dart-define=TVE_CHANNEL=…`).
+const _groupOverride = String.fromEnvironment('TVE_GROUP');
+const group = _groupOverride == '' ? 'acasgroup' : _groupOverride;
+const channel = String.fromEnvironment('TVE_CHANNEL', defaultValue: _groupOverride == '' ? 'ouest-tv' : '');
 
 const config = TveConfig(
   group: group,
+  appChannel: channel == '' ? null : channel,
   appName: 'Ouest TV',
   // Site déclaré à YouTube pour le lecteur intégré (sinon erreurs 152/153).
   youtubeOrigin: OuestLinks.website,
-  // defaultChannel: 'ouest-tv',
   // playStoreUrl: 'https://play.google.com/store/apps/details?id=com.acangroup.ouest_tv',
   // appStoreUrl: 'https://apps.apple.com/app/id000000000',
 );

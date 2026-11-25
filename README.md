@@ -21,8 +21,13 @@ playlist YouTube synchronisée. Les rangées vides sont masquées.
 
 ## À compléter
 
-- **Code du groupe TVE** : `ouesttv` dans `lib/main.dart` — ce groupe n'existe pas encore dans l'API.
+- **Source des données** : Ouest TV est une chaîne **aCAS** : groupe partagé `acasgroup`, chaîne
+  `ouest-tv` (`lib/main.dart`). Sa configuration d'app (nom, logo, réseaux, à propos…) vient de
+  `…/groups/acasgroup/channels/ouest-tv?include=app` et se règle dans le back-office aCAS.
   Pour tester avec un autre groupe : `flutter run --dart-define=TVE_GROUP=leraltv`.
+- **À corriger dans le back-office** (config d'app de la chaîne) : Facebook, X, Instagram et le
+  texte « À propos » sont encore ceux de Koode ; le site est `koode.net` (l'app affiche
+  `www.ouest.tv`, fixé dans `OuestLinks`).
 - **Liens sociaux et site web** (Facebook, Instagram, X, WhatsApp, YouTube, LinkedIn, site) : `OuestLinks`
   dans `lib/ouest/brand.dart`. Le splash affiche le site (www.ouest.tv), Facebook et YouTube, et n'utilise que ces liens (l'API n'est pas encore chargée) ; les
   autres écrans prennent aussi `social.*` de l'API.
@@ -53,14 +58,14 @@ Flutter ≥ 3.32 (Dart ≥ 3.8). Testé avec Flutter 3.35.7.
 ```bash
 flutter pub get
 flutter run                                   # Android / iOS
-flutter run --dart-define=TVE_GROUP=leraltv   # avec un groupe qui existe déjà dans l'API
+flutter run --dart-define=TVE_GROUP=leraltv   # avec un autre groupe, pour tester
 ```
 
 **Chrome (web)** : l'API renvoie l'en-tête CORS en double (`Access-Control-Allow-Origin: *, *`),
 le navigateur bloque donc les requêtes (à corriger côté serveur). En attendant, pour tester :
 
 ```bash
-flutter run -d chrome --dart-define=TVE_GROUP=leraltv --web-browser-flag "--disable-web-security"
+flutter run -d chrome --web-browser-flag "--disable-web-security"
 ```
 
 Sur le web, le direct HLS ne se lit pas (Chrome n'a pas de lecteur HLS natif) ; sur mobile, OK.

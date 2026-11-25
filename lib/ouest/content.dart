@@ -84,7 +84,7 @@ class OuestContent {
       OuestRail(id: id, title: title, load: () async => _preloadedItems.remove(id) ?? await load());
 
   TveClient get _api => api;
-  List<String>? get _ch => config.channels.isEmpty ? null : config.channels;
+  List<String>? get _ch => config.channelFilter;
   bool get _vod => group.has('videos');
   bool get _yt => group.has('external-videos');
 
@@ -94,7 +94,9 @@ class OuestContent {
       return p.items.map(OuestVideo.vod).toList();
     }
     if (_yt) {
-      final p = await _api.listExternalVideos(channel: _ch, limit: railSize);
+      // Flux « vidéos » de la chaîne YouTube (sans les lives) ; à défaut, tout.
+      var p = await _api.listExternalVideos(feed: const ['videos'], channel: _ch, limit: railSize);
+      if (p.items.isEmpty) p = await _api.listExternalVideos(channel: _ch, limit: railSize);
       return p.items.map(OuestVideo.external).toList();
     }
     return const [];
@@ -116,7 +118,7 @@ class OuestContent {
     if (_yt && group.has('external-playlists')) {
       final p = await _api.listExternalPlaylists(channel: _ch, limit: maxShowRails);
       return [
-        for (final pl in p.items.where((e) => e.itemCount != 0))
+        for (final pl in p.items.where((e) => e.itemCount != 0 && !_isAutoPlaylist(e.title)))
           _rail(
             'playlist:${pl.id}',
             pl.title.toUpperCase(),
@@ -129,6 +131,10 @@ class OuestContent {
     }
     return const [];
   }
+
+  /// Playlists automatiques de YouTube, sans intérêt éditorial.
+  static bool _isAutoPlaylist(String title) =>
+      const {'favorites', 'favoris', 'liked videos', 'vidéos j\'aime'}.contains(title.trim().toLowerCase());
 
   /// Toutes les rangées de l'accueil (celles du préchargement, la première fois).
   Future<List<OuestRail>> all() async {
@@ -157,12 +163,19 @@ class OuestContent {
     },
   );
 
-  /// Chaîne TV à jouer en direct (config `defaultChannel`, sinon la première).
+  /// Chaîne à jouer en direct : celle de l'app (aCAS) ou `defaultChannel`,
+  /// sinon la première chaîne TV.
   Future<TveChannel?> liveChannel() async {
-    final p = await _api.listChannels(kind: const ['tv', 'webtv'], limit: 100);
+    final wanted = config.preferredChannel;
+    if (wanted != null) {
+      try {
+        return await _api.getChannel(wanted);
+      } on TveException catch (e) {
+        if (!e.isNotFound) rethrow;
+      }
+    }
+    final p = await _api.listChannels(kind: const ['tv', 'webtv', 'acas', 'cinema'], limit: 100);
     final items = _ch == null ? p.items : p.items.where((c) => _ch!.contains(c.slug)).toList();
-    if (items.isEmpty) return null;
-    final wanted = config.defaultChannel;
-    return items.firstWhere((c) => c.slug == wanted, orElse: () => items.first);
+    return items.firstOrNull;
   }
 }
