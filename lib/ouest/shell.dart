@@ -540,13 +540,7 @@ class _Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final networks = [
-      for (final n in const [
-        OuestSocial.facebook,
-        OuestSocial.youtube,
-        OuestSocial.instagram,
-        OuestSocial.twitter,
-        OuestSocial.linkedin,
-      ])
+      for (final n in const [OuestSocial.facebook, OuestSocial.youtube, OuestSocial.twitter, OuestSocial.linkedin])
         if (n.url(social) != null) n,
     ];
     final site = OuestSocial.website.url();

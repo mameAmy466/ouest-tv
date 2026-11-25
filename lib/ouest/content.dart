@@ -22,7 +22,10 @@ class OuestVideo {
     : id = v.id,
       title = v.title,
       thumbnail = v.thumbnail,
-      publishedAt = v.publishedAt,
+      // Pour les vidéos des flux YouTube (`feed` : videos, popular-videos…),
+      // l'API renvoie l'heure de synchronisation, pas la date de publication :
+      // on ne l'affiche pas. Les vidéos des playlists ont la vraie date.
+      publishedAt = v.feed == null ? v.publishedAt : null,
       vod = null,
       external = v;
 

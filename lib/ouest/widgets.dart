@@ -184,26 +184,19 @@ class OuestChannelCard extends StatelessWidget {
   }
 }
 
-/// Carte « Suivez-nous » : réseaux sociaux + bouton de partage.
+/// Carte « Suivez-nous » : réseaux sociaux de la chaîne.
 class OuestFollowBar extends StatelessWidget {
-  final String shareText;
-  const OuestFollowBar({super.key, required this.shareText});
+  const OuestFollowBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final tve = TveScope.of(context);
-    final social = tve.group.social;
-    const networks = [
-      OuestSocial.facebook,
-      OuestSocial.youtube,
-      OuestSocial.twitter,
-      OuestSocial.instagram,
-      OuestSocial.linkedin,
-    ];
+    final social = TveScope.of(context).group.social;
+    const networks = [OuestSocial.facebook, OuestSocial.youtube, OuestSocial.twitter, OuestSocial.linkedin];
     final links = [
       for (final n in networks)
         if (n.url(social) != null) n,
     ];
+    if (links.isEmpty) return const SizedBox.shrink();
     return OuestPanel(
       child: Row(
         children: [
@@ -216,27 +209,53 @@ class OuestFollowBar extends StatelessWidget {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: OuestBrand.text),
                 ),
                 SizedBox(height: 2),
-                Text('et partagez autour de vous', style: TextStyle(fontSize: 12, color: Color(0xFF8A8A8A))),
+                Text('sur nos réseaux', style: TextStyle(fontSize: 12, color: Color(0xFF8A8A8A))),
               ],
             ),
           ),
           for (final n in links)
             Padding(
-              padding: const EdgeInsets.only(left: 6),
+              padding: const EdgeInsets.only(left: 8),
               child: _RoundButton(
                 tooltip: n.label,
                 onTap: () => openLink(n.url(social)),
                 child: FaIcon(n.icon, size: 14, color: OuestBrand.primary),
               ),
             ),
-          const SizedBox(width: 10),
-          _RoundButton(
-            tooltip: 'Partager',
-            filled: true,
-            onTap: () => SharePlus.instance.share(ShareParams(text: tve.shareText(shareText))),
-            child: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
-          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Bouton « Partager » (pastille), à côté du titre de ce qu'on partage.
+class OuestShareButton extends StatelessWidget {
+  final String text;
+  const OuestShareButton({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final tve = TveScope.of(context);
+    return Material(
+      color: const Color(0xFFF6ECEA),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => SharePlus.instance.share(ShareParams(text: tve.shareText(text))),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.share_rounded, size: 16, color: OuestBrand.primary),
+              SizedBox(width: 6),
+              Text(
+                'Partager',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: OuestBrand.primary),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -244,16 +263,15 @@ class OuestFollowBar extends StatelessWidget {
 
 class _RoundButton extends StatelessWidget {
   final String tooltip;
-  final bool filled;
   final VoidCallback onTap;
   final Widget child;
-  const _RoundButton({required this.tooltip, required this.onTap, required this.child, this.filled = false});
+  const _RoundButton({required this.tooltip, required this.onTap, required this.child});
 
   @override
   Widget build(BuildContext context) => Tooltip(
     message: tooltip,
     child: Material(
-      color: filled ? OuestBrand.primary : const Color(0xFFF6ECEA),
+      color: const Color(0xFFF6ECEA),
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),

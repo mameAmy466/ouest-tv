@@ -35,7 +35,7 @@ class OuestReplayScreen extends StatelessWidget {
             children: [
               _player(tve, v),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: Text(
                   v.title.toUpperCase(),
                   style: const TextStyle(
@@ -46,7 +46,17 @@ class OuestReplayScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              OuestFollowBar(shareText: [v.title, v.shareUrl].whereType<String>().join('\n')),
+              // Date (si connue) à gauche, « Partager » à droite, sous le titre.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
+                child: Row(
+                  children: [
+                    Expanded(child: OuestDateLine(date: v.publishedAt)),
+                    OuestShareButton(text: [v.title, v.shareUrl].whereType<String>().join('\n')),
+                  ],
+                ),
+              ),
+              const OuestFollowBar(),
               const SizedBox(height: 16),
               OuestCollapsibleRail(rail: content.similar(v), initiallyExpanded: true, playing: v, onOpen: open),
               for (final r in topics) OuestCollapsibleRail(rail: r, playing: v, onOpen: open),
