@@ -658,7 +658,7 @@ packages:
     description:
       path: "."
       ref: "claude/blissful-faraday-iun5xh"
-      resolved-ref: e267cfe939879aefa5e5e4ba1764066bf034a875
+      resolved-ref: "3703e8ada3094d5f83d0440eef1c1ce3b139ffa2"
       url: "https://github.com/mameAmy466/framework.git"
     source: git
     version: "0.1.0"

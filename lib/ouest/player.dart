@@ -91,7 +91,16 @@ class _OuestPlayerState extends State<OuestPlayer> {
           throw const TveException(status: 0, code: 'playback_unavailable', title: 'Lecture externe');
       }
       if (mounted) setState(() => _loading = false);
-    } catch (e) {
+    } catch (e, st) {
+      // Détail complet dans la console (flutter run) pour le diagnostic.
+      debugPrint('OuestPlayer: lecture impossible ($e)');
+      debugPrintStack(stackTrace: st, maxFrames: 5);
+      // Une nouvelle tentative automatique avec une URL signée fraîche.
+      if (_retries < 1 && widget.load != null) {
+        _retries++;
+        await Future<void>.delayed(const Duration(seconds: 1));
+        if (mounted) return _init();
+      }
       if (mounted) {
         setState(() {
           _error = e;
@@ -158,15 +167,12 @@ class _OuestPlayerState extends State<OuestPlayer> {
                   if (_loading || (ready && c.value.isBuffering))
                     const Center(child: CircularProgressIndicator(color: Colors.white)),
                   if (_error != null)
-                    Theme(
-                      data: ThemeData.dark(useMaterial3: true),
-                      child: TveErrorView(
-                        error: _error!,
-                        onRetry: () {
-                          _retries = 0;
-                          _init();
-                        },
-                      ),
+                    _PlayerError(
+                      isLive: widget.isLive,
+                      onRetry: () {
+                        _retries = 0;
+                        _init();
+                      },
                     ),
                   if (widget.isLive) const Positioned(left: 24, top: 14, child: OuestLiveBadge()),
                 ],
@@ -205,6 +211,47 @@ class _OuestPlayerState extends State<OuestPlayer> {
     String two(int v) => v.toString().padLeft(2, '0');
     final h = d.inHours, m = d.inMinutes.remainder(60), s = d.inSeconds.remainder(60);
     return h > 0 ? '$h:${two(m)}:${two(s)}' : '${two(m)}:${two(s)}';
+  }
+}
+
+/// Erreur compacte, qui tient dans la zone vidéo quelle que soit sa taille.
+class _PlayerError extends StatelessWidget {
+  final bool isLive;
+  final VoidCallback onRetry;
+  const _PlayerError({required this.isLive, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.black,
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.portable_wifi_off_rounded, color: Colors.white70, size: 36),
+                const SizedBox(height: 10),
+                Text(
+                  isLive ? 'Le direct est momentanément indisponible.' : 'Lecture impossible pour le moment.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 14),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(backgroundColor: OuestBrand.live),
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('Réessayer'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
