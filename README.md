@@ -7,7 +7,7 @@ framework [`tve_kit`](https://github.com/mameAmy466/framework) et l'API TVE v3.
 
 | Écran | Fichier |
 |---|---|
-| Démarrage (logo, slogan, arcs, site www.ouest.tv, Facebook, YouTube) | `lib/ouest/splash.dart` |
+| Démarrage : animation vidéo `assets/video/splash.mp4` (5 s, muette), repli sur un écran fixe | `lib/ouest/splash.dart` |
 | Accueil (carte chaîne + EN DIRECT clignotant, carrousel animé, rangées de vidéos) | `lib/ouest/home_screen.dart` |
 | Direct (lecteur, carte chaîne, réseaux, rangées repliables) | `lib/ouest/live_screen.dart` |
 | Replay TV (lecteur, titre, vidéos similaires) | `lib/ouest/replay_screen.dart` |
@@ -39,15 +39,15 @@ playlist YouTube synchronisée. Les rangées vides sont masquées.
 
 ## Icône et écran de démarrage natif
 
-L'icône de l'app et l'écran affiché avant le chargement de Flutter (fond blanc + logo) sont
-générés depuis `assets/branding/` (config dans `pubspec.yaml`) :
+L'icône de l'app est générée depuis `assets/branding/`, et l'écran affiché avant le chargement de
+Flutter est blanc uni (l'animation vidéo démarre sur fond blanc) — config dans `pubspec.yaml` :
 
 ```bash
 dart run flutter_launcher_icons
 dart run flutter_native_splash:create
 ```
 
-Ensuite, l'écran de démarrage Flutter reste affiché au moins 5 s, le temps de charger le groupe
+Ensuite, l'animation de démarrage (vidéo H.264 8 bits 720×1280, sans piste audio) reste affichée au moins 5 s, le temps de charger le groupe
 et de précharger l'accueil (`preload` dans `lib/main.dart`). Sur l'accueil, le bouton retour
 demande confirmation avant de quitter l'app.
 

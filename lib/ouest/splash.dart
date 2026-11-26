@@ -1,15 +1,131 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tve_kit/tve_kit.dart';
+import 'package:video_player/video_player.dart';
 
 import 'brand.dart';
 
-/// Écran de démarrage (maquette « splash ») : logo + slogan sur fond blanc,
-/// trois arcs en bas et le bloc « Suivez-nous ».
-class OuestSplash extends StatelessWidget {
+/// Écran de démarrage animé : la vidéo d'animation Ouest TV
+/// (`assets/video/splash.mp4`, 5 s, muette) en plein écran.
+///
+/// - Tant que la vidéo n'est pas prête : fond blanc (comme l'écran natif).
+/// - À la fin de la vidéo, si les données ne sont pas encore chargées, la
+///   dernière image reste affichée avec une barre de chargement.
+/// - Erreur de chargement : message + « Réessayer » par-dessus.
+/// - Si la vidéo ne peut pas être lue : écran fixe [_StaticSplash].
+class OuestSplash extends StatefulWidget {
   final Object? error;
   final VoidCallback onRetry;
   const OuestSplash({super.key, this.error, required this.onRetry});
+
+  static const video = 'assets/video/splash.mp4';
+
+  @override
+  State<OuestSplash> createState() => _OuestSplashState();
+}
+
+class _OuestSplashState extends State<OuestSplash> {
+  // Sans couper la musique éventuelle de l'utilisateur.
+  final _video = VideoPlayerController.asset(
+    OuestSplash.video,
+    videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+  );
+  bool _ready = false, _failed = false, _ended = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  Future<void> _start() async {
+    try {
+      await _video.initialize();
+      await _video.setVolume(0);
+      _video.addListener(_onTick);
+      await _video.play();
+      if (mounted) setState(() => _ready = true);
+    } catch (e) {
+      debugPrint('OuestSplash: vidéo illisible ($e)');
+      if (mounted) setState(() => _failed = true);
+    }
+  }
+
+  void _onTick() {
+    final v = _video.value;
+    final ended =
+        v.isInitialized && v.duration > Duration.zero && v.position >= v.duration - const Duration(milliseconds: 80);
+    if (ended != _ended && mounted) setState(() => _ended = ended);
+  }
+
+  @override
+  void dispose() {
+    _video.removeListener(_onTick);
+    _video.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_failed) return _StaticSplash(error: widget.error, onRetry: widget.onRetry);
+    final size = MediaQuery.sizeOf(context);
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (_ready)
+            FittedBox(
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+              child: SizedBox(
+                width: _video.value.size.width,
+                height: _video.value.size.height,
+                child: VideoPlayer(_video),
+              ),
+            ),
+          // Chargement qui se prolonge après l'animation.
+          if (_ended && widget.error == null)
+            Positioned(
+              left: 0,
+              right: 0,
+              top: size.height * .62,
+              child: const Center(
+                child: SizedBox(
+                  width: 120,
+                  child: LinearProgressIndicator(
+                    minHeight: 3,
+                    color: OuestBrand.primary,
+                    backgroundColor: Color(0xFFF2CDCD),
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                  ),
+                ),
+              ),
+            ),
+          if (widget.error != null)
+            Positioned(
+              left: 24,
+              right: 24,
+              top: size.height * .6,
+              child: Material(
+                color: Colors.white,
+                elevation: 6,
+                borderRadius: BorderRadius.circular(16),
+                child: TveErrorView(error: widget.error!, onRetry: widget.onRetry),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Écran de démarrage fixe (repli si la vidéo est illisible) : logo + slogan
+/// sur fond blanc, trois arcs en bas et le bloc « Suivez-nous ».
+class _StaticSplash extends StatelessWidget {
+  final Object? error;
+  final VoidCallback onRetry;
+  const _StaticSplash({this.error, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
