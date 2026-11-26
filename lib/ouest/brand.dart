@@ -9,7 +9,7 @@ abstract final class OuestBrand {
   static const tagline = "la chaîne d'information de l'Afrique de l'Ouest";
 
   /// Brun du bas du splash, couleur principale de l'app.
-  static const primary = Color(0xFF6E2316);
+  static const primary = Color(0xFF6F2314);
 
   /// Accents orange (chevrons du menu, puce de date, icônes sociales).
   static const accent = Color(0xFFE5732A);

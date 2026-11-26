@@ -170,13 +170,13 @@ class OuestShellState extends State<OuestShell> with SingleTickerProviderStateMi
   /// Remplace les couleurs codées en dur dans le HTML (vert du modèle) par la
   /// couleur de l'app.
   static String _brandHtml(String html) {
-    var h = html.replaceAll(RegExp(r'color:\s*(rgb\([^)]*\)|#[0-9a-fA-F]{3,8})\s*;?'), 'color: #6E2316;');
+    var h = html.replaceAll(RegExp(r'color:\s*(rgb\([^)]*\)|#[0-9a-fA-F]{3,8})\s*;?'), 'color: #6F2314;');
     // Titres à taille raisonnable sur mobile, en brun.
     const sizes = {'h1': 21, 'h2': 17, 'h3': 15, 'h4': 15};
     sizes.forEach((tag, px) {
       h = h.replaceAllMapped(
         RegExp('<$tag(\\s[^>]*)?>', caseSensitive: false),
-        (m) => '<$tag style="font-size:${px}px;line-height:1.35;color:#6E2316;margin:16px 0 6px">',
+        (m) => '<$tag style="font-size:${px}px;line-height:1.35;color:#6F2314;margin:16px 0 6px">',
       );
     });
     return h;

@@ -127,7 +127,7 @@ flutter_launcher_icons:
     generate: true
     image_path: assets/branding/icon.png
     background_color: "#FFFFFF"
-    theme_color: "#6E2316"
+    theme_color: "#6F2314"
 
 # Écran de démarrage natif (avant le chargement de Flutter) : `dart run flutter_native_splash:create`
 flutter_native_splash:
