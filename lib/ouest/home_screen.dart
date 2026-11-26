@@ -29,7 +29,7 @@ class OuestHomeScreen extends StatelessWidget {
             padding: ouestBottomPadding(context),
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                 child: OuestChannelCard(
                   subtitle: 'Suivez votre chaîne ${tve.appName} en direct.',
                   onLive: () => shell.go(OuestPage.live),
@@ -37,7 +37,11 @@ class OuestHomeScreen extends StatelessWidget {
               ),
               for (final (i, r) in rails.indexed)
                 i == 0
-                    ? OuestFeaturedRail(rail: r, onOpen: (v, _) => shell.openVideo(v))
+                    ? OuestFeaturedRail(
+                        rail: r,
+                        onOpen: (v, _) => shell.openVideo(v),
+                        emptyMessage: OuestBrand.noVideos,
+                      )
                     : OuestRailSection(rail: r, onOpen: (v, _) => shell.openVideo(v)),
             ],
           ),

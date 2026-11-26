@@ -22,6 +22,9 @@ abstract final class OuestBrand {
 
   static const logo = 'assets/images/logo.png';
 
+  /// Message quand la chaîne n'a aucune vidéo disponible.
+  static const noVideos = "Les vidéos d'Ouest TV ne sont pas disponibles pour le moment. Revenez un peu plus tard.";
+
   /// Image jointe au partage (logo + slogan, 1200×630).
   static const shareImage = 'assets/images/share_card.png';
 }

@@ -543,6 +543,45 @@ class _OuestRailListState extends State<OuestRailList> {
   }
 }
 
+/// Carte « pas encore de vidéos » (rangée principale vide), avec « Réessayer ».
+class OuestEmptyVideos extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const OuestEmptyVideos({super.key, required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(0, 4, 0, 16),
+    child: OuestPanel(
+      padding: const EdgeInsets.fromLTRB(18, 22, 18, 14),
+      child: Column(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(color: Color(0xFFF6ECEA), shape: BoxShape.circle),
+            child: const Icon(Icons.video_library_outlined, color: OuestBrand.primary),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF555555), height: 1.4),
+          ),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded, size: 18, color: OuestBrand.primary),
+            label: const Text(
+              'Réessayer',
+              style: TextStyle(color: OuestBrand.primary, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 /// Carrousel « Dernières vidéos » : cartes plein format (image, dégradé,
 /// titre en surimpression, bouton lecture), voisines réduites sur les côtés,
 /// effet de parallaxe sur l'image, indicateur de position animé et défilement
@@ -825,7 +864,10 @@ class _Dots extends StatelessWidget {
 class OuestFeaturedRail extends StatefulWidget {
   final OuestRail rail;
   final void Function(OuestVideo video, List<OuestVideo> rail) onOpen;
-  const OuestFeaturedRail({super.key, required this.rail, required this.onOpen});
+
+  /// Message affiché si la rangée est vide (sinon elle disparaît).
+  final String? emptyMessage;
+  const OuestFeaturedRail({super.key, required this.rail, required this.onOpen, this.emptyMessage});
 
   @override
   State<OuestFeaturedRail> createState() => _OuestFeaturedRailState();
@@ -846,7 +888,12 @@ class _OuestFeaturedRailState extends State<OuestFeaturedRail> {
           );
         }
         final items = snap.data;
-        if (items != null && items.isEmpty) return const SizedBox.shrink();
+        if (items != null && items.isEmpty) {
+          final m = widget.emptyMessage;
+          return m == null
+              ? const SizedBox.shrink()
+              : OuestEmptyVideos(message: m, onRetry: () => setState(() => _f = widget.rail.load()));
+        }
         return Padding(
           padding: const EdgeInsets.only(top: 12, bottom: 20),
           child: Column(
@@ -869,7 +916,10 @@ class _OuestFeaturedRailState extends State<OuestFeaturedRail> {
 class OuestRailSection extends StatefulWidget {
   final OuestRail rail;
   final void Function(OuestVideo video, List<OuestVideo> rail) onOpen;
-  const OuestRailSection({super.key, required this.rail, required this.onOpen});
+
+  /// Message affiché si la rangée est vide (sinon elle disparaît).
+  final String? emptyMessage;
+  const OuestRailSection({super.key, required this.rail, required this.onOpen, this.emptyMessage});
 
   @override
   State<OuestRailSection> createState() => _OuestRailSectionState();
@@ -880,7 +930,15 @@ class _OuestRailSectionState extends State<OuestRailSection> {
 
   @override
   Widget build(BuildContext context) {
-    if (_empty) return const SizedBox.shrink();
+    if (_empty) {
+      final m = widget.emptyMessage;
+      return m == null
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: OuestEmptyVideos(message: m, onRetry: () => setState(() => _empty = false)),
+            );
+    }
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(

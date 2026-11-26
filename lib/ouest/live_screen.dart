@@ -49,7 +49,11 @@ class OuestLiveScreen extends StatelessWidget {
               const OuestFollowBar(),
               const SizedBox(height: 6),
               // Rangées toujours ouvertes (pas de repli sur la page direct).
-              OuestRailSection(rail: content.latest, onOpen: (v, _) => shell.openVideo(v)),
+              OuestRailSection(
+                rail: content.latest,
+                onOpen: (v, _) => shell.openVideo(v),
+                emptyMessage: OuestBrand.noVideos,
+              ),
               for (final r in topics) OuestRailSection(rail: r, onOpen: (v, _) => shell.openVideo(v)),
             ],
           );
