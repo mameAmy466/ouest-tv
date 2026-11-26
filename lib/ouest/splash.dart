@@ -24,7 +24,22 @@ class OuestSplash extends StatefulWidget {
   State<OuestSplash> createState() => _OuestSplashState();
 }
 
-class _OuestSplashState extends State<OuestSplash> {
+class _OuestSplashState extends State<OuestSplash> with SingleTickerProviderStateMixin {
+  /// Moment de l'animation où le logo est formé : le vrai logo de l'app
+  /// apparaît alors en fondu à sa place.
+  static const _logoAt = Duration(milliseconds: 3400);
+
+  /// Blanc de fond de la vidéo (légèrement grisé par l'encodage).
+  static const _videoWhite = Color(0xFFFDFDFD);
+
+  /// Zone du logo dans la vidéo (fractions de l'image 9:16).
+  static const _logoLeft = .219, _logoRight = .780, _logoCenterY = .432, _coverTop = .36, _coverBottom = .50;
+
+  late final AnimationController _logoFade = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 450),
+  );
+
   // Sans couper la musique éventuelle de l'utilisateur.
   final _video = VideoPlayerController.asset(
     OuestSplash.video,
@@ -53,6 +68,7 @@ class _OuestSplashState extends State<OuestSplash> {
 
   void _onTick() {
     final v = _video.value;
+    if (v.position >= _logoAt && _logoFade.status == AnimationStatus.dismissed) _logoFade.forward();
     final ended =
         v.isInitialized && v.duration > Duration.zero && v.position >= v.duration - const Duration(milliseconds: 80);
     if (ended != _ended && mounted) setState(() => _ended = ended);
@@ -62,7 +78,38 @@ class _OuestSplashState extends State<OuestSplash> {
   void dispose() {
     _video.removeListener(_onTick);
     _video.dispose();
+    _logoFade.dispose();
     super.dispose();
+  }
+
+  /// La vidéo, puis par-dessus (en coordonnées de la vidéo, donc recadré
+  /// pareil) le logo de l'app qui remplace en fondu celui de l'animation.
+  Widget _videoWithLogo(Size v) {
+    final left = v.width * _logoLeft, width = v.width * (_logoRight - _logoLeft);
+    final logoHeight = width / 2.277; // proportions de assets/images/logo.png
+    return Stack(
+      children: [
+        Positioned.fill(child: VideoPlayer(_video)),
+        // Fond blanc qui masque le logo de la vidéo (sans widget Opacity).
+        Positioned(
+          left: left - 12,
+          width: width + 24,
+          top: v.height * _coverTop,
+          height: v.height * (_coverBottom - _coverTop),
+          child: AnimatedBuilder(
+            animation: _logoFade,
+            builder: (context, _) => ColoredBox(color: _videoWhite.withValues(alpha: _logoFade.value)),
+          ),
+        ),
+        Positioned(
+          left: left,
+          width: width,
+          top: v.height * _logoCenterY - logoHeight / 2,
+          height: logoHeight,
+          child: Image.asset(OuestBrand.logo, opacity: _logoFade, fit: BoxFit.contain),
+        ),
+      ],
+    );
   }
 
   @override
@@ -81,7 +128,7 @@ class _OuestSplashState extends State<OuestSplash> {
               child: SizedBox(
                 width: _video.value.size.width,
                 height: _video.value.size.height,
-                child: VideoPlayer(_video),
+                child: _videoWithLogo(_video.value.size),
               ),
             ),
           // Chargement qui se prolonge après l'animation.
